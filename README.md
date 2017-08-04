@@ -1,5 +1,8 @@
 ``check_apcaccess`` is a Nagios / Icinga plugin for checking APC UPS devices using [apcupsd](http://www.apcupsd.com).
 
+# About this fork
+I've added parameters for critical/ warnings if the UPS-Status is not Online (when it is running on battery)
+
 # Requirements
 The plugin requires a working apcupsd installation - see the [apcupsd online documentation](http://www.apcupsd.org/manual/manual.html) for instructions and valid configuration types.
 
@@ -24,6 +27,8 @@ The following parameters can be specified:
 | `-T` / `--time-critical` | defines battery time left critical threshold in minutes (*default: empty*) |
 | `-u` / `--consumption-warning` | defines power consumption warning threshold in watts (*default: empty*) |
 | `-U` / `--consumption-critical` | defines power consumption critical threshold in watts (*default: empty*) |
+| `-o` / `--notonline-warning` | warns if UPS-Status is not online (e.g. on battery) (*default: false*)
+| `-O` / `--notonline-critical` | critical if UPS-Status is not online (e.g. on battery) (*default: false*) |
 | `--version` | prints programm version and quits |
 
 ## Examples

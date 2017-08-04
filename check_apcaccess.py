@@ -8,6 +8,11 @@
 # <info at stankowic hyphen development dot net>
 # https://github.com/stdevel
 #
+# 2017 by Peter Kappelt:
+# Added Option for Critical/ Warning if UPS is not "Online"
+# <kappelt.peter@gmail.com>
+# https://github.com/peterkappelt
+#
 
 from optparse import OptionParser, OptionGroup
 import os
@@ -96,6 +101,8 @@ def check_ups():
 	temp = get_value('ITEMP', True)
 	load = get_value('LOADPCT', True)
 	batt = get_value('BCHARGE', True)
+	status = get_value('STATUS', False)
+  
 	if options.time_warn and options.time_crit: time = get_value('TIMELEFT', True)
 	power_cons = calc_consumption()
 	
@@ -117,6 +124,15 @@ def check_ups():
 	if options.consum_warn or options.consum_crit:
 		snip_consum = check_value(power_cons, "power consumption", options.consum_warn, options.consum_crit)
 	else: snip_consum=""
+	
+	#check notonline (optional)
+	if options.notonline_warn and status != "ONLINE":
+		set_code(1)
+		snip_notonline = "{0} warning ({1})".format("notonline", status)
+	elif options.notonline_crit and status != "ONLINE":
+		set_code(2)
+		snip_notonline = "{0} critical ({1})".format("notonline", status)
+	else: snip_notonline=""
 	
 	#get performance data
 	if options.show_perfdata:
@@ -142,7 +158,7 @@ def check_ups():
 	else: perfdata=""
 	
 	#return result
-	snips = [x for x in [snip_temp, snip_load, snip_batt, snip_time, snip_consum] if x != ""]
+	snips = [x for x in [snip_temp, snip_load, snip_batt, snip_time, snip_consum, snip_notonline] if x != ""]
 	print "{0}: {1}{2}".format(get_return_str(), str(", ".join(snips)), perfdata)
 	exit(state)
 
@@ -220,6 +236,12 @@ if __name__ == "__main__":
 	
 	#-U / --consumption-critical
 	thres_opts.add_option("-U", "--consumption-critical", dest="consum_crit", type=int, metavar="WATTS", action="store", help="defines power consumption critical threshold in watts (default: empty)")
+	
+	#-o / --notonline-warning
+	thres_opts.add_option("-o", "--notonline-warning", dest="notonline_warn", action="store_true", help="warns if UPS-Status is not online (e.g. on battery) (default: false)")
+	
+	#-O / --notonline-critical
+	thres_opts.add_option("-O", "--notonline-critical", dest="notonline_crit", action="store_true", help="critical if UPS-Status is not online (e.g. on battery) (default: false)")
 	
 	#parse arguments
 	(options, args) = parser.parse_args()
